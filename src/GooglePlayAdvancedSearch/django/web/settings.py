@@ -45,17 +45,17 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'web.urls'
 
 TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR+"/templates"],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-            ],
-        },
-    },
+	{
+		'BACKEND': 'django.template.backends.django.DjangoTemplates',
+		# We have put templates in project directory, not in app directory. Therefore 'APP_DIRS' can be False.
+		'DIRS': [BASE_DIR + "/templates"],
+		'APP_DIRS': False,
+		'OPTIONS': {
+			'context_processors': [
+				'django.template.context_processors.debug',
+			],
+		},
+	},
 ]
 
 WSGI_APPLICATION = 'web.wsgi.application'
