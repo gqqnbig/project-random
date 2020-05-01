@@ -3,12 +3,14 @@ Description=run uwsgi service for play-search
 After=network.target
 StartLimitIntervalSec=0
 [Service]
+WorkingDirectory=/var/www/play-search/
 Type=simple
 Restart=always
 RestartSec=0
 User=www-data
-ExecStart=uwsgi --socket /var/www/play-search/mysite.sock --chmod-socket=666 --chdir /var/www/play-search/src/GooglePlayAdvancedSearch/django --module web.wsgi --enable-threads
-# --daemonize /var/log/play-search/log
+# Compile translation files
+ExecStartPre=bash -c 'cd src/GooglePlayAdvancedSearch/django; django-admin compilemessages'
+ExecStart=uwsgi --socket /var/www/play-search/mysite.sock --chmod-socket=666 --chdir src/GooglePlayAdvancedSearch/django --module web.wsgi --enable-threads
 
 [Install]
 WantedBy=multi-user.target

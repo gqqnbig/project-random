@@ -38,6 +38,21 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r src/GooglePlayAdvancedSearch/tests/requirements.txt
+    - name: Build translation files
+      run: |
+        cd src/GooglePlayAdvancedSearch/django
+        for f in locale/*
+        do
+          if [[ ! $f =~ [^_]+_[[:upper:]]([[:upper:]]|[[:lower:]]{2,}) ]]; then
+            echo $f is invalid. If the country part is 2 characters, it must be UPPERCASE. Otherwise it must be Titlecase.
+            exit 1
+          fi
+        done
+
+        sudo apt-get --yes install gettext
+        django-admin compilemessages
+        # test -f locale/zh_Hans/LC_MESSAGES/django.mo
+        test -f locale/zh_Hans/LC_MESSAGES/djangojs.mo
     - name: Lint with flake8
       run: |
         pip install flake8
