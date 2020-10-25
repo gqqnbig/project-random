@@ -61,6 +61,9 @@ Promise.all([permissionPromise, categoryPromise, testGoogleAnalysis]).then(funct
 
 			searchResult.executionSeconds = (performance.now() - startSearchTime) / 1000;
 			searchResult.errorMessage = undefined;
+
+			//activate Google ads
+			(adsbygoogle = window.adsbygoogle || []).push({});
 		}
 	});
 });
