@@ -51,6 +51,24 @@ def saveSqlValue(str: str):
 	return str.replace('"', '').replace("'", '').replace('--', '')
 
 
+def executeAndCreateTable(cursor, fnSqlToCreateTable, *args):
+	"""
+
+	:param cursor:
+	:param fnSqlToCreateTable:
+	:param args: anything cursor.execute can accept.
+	:return:
+	"""
+	try:
+		cursor.execute(*args)
+	except Exception as e:
+		if type(e).__name__ is 'OperationalError' and 'no such table' in str(e):
+			cursor.execute(fnSqlToCreateTable())
+			cursor.execute(*args)
+		else:
+			raise e
+
+
 class AppAccessor:
 
 	def __init__(self):

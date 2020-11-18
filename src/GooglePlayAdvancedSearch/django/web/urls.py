@@ -27,5 +27,6 @@ urlpatterns = [
 	path(r'Api/Categories', Api.getCategories, name='Api/Categories'),
 	path(r'Api/Search', Api.search, name='Api/Search'),
 	path(r'Api/Version', Api.version),
-	path(r'Api/RecentSearches',Api.recentSearches, name='Api/RecentSearches'),
+	path(r'Api/RecentSearches', Api.recentSearches, name='Api/RecentSearches'),
+	path(r'Api/SearchTiming', Api.searchTiming),
 ]

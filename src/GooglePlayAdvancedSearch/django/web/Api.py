@@ -2,6 +2,9 @@ import datetime
 import os
 import subprocess
 import sys
+import statistics
+import time
+
 from types import SimpleNamespace
 from typing import List, Dict
 from urllib.parse import urlparse
@@ -102,6 +105,7 @@ def search(request: django.http.HttpRequest):
 			except Exception as e:
 				print(str(e))
 
+	startTime = time.time()
 	excludedPIds = [int(n) for n in request.GET.get('pids', '').split(',') if n != '']
 
 	excludedCIds = [int(n) for n in request.GET.get('cids', '').split(',') if n != '']
@@ -138,6 +142,10 @@ def search(request: django.http.HttpRequest):
 			appInfos = sorted(appInfos, key=lambda a: len(a['permissions']))
 		elif sortType == 'phl':  # number of permissions low to high
 			appInfos = sorted(appInfos, key=lambda a: len(a['permissions']), reverse=True)
+
+		with connection.cursor() as cursor:
+			d = int((time.time() - startTime) * 1000)
+			GooglePlayAdvancedSearch.DBUtils.executeAndCreateTable(cursor, apiHelper.getSqlCreateTableSearchTiming, 'insert into SearchTiming values (:d)', {'d': d})
 
 		response = JsonResponse({'apps': [dict(a) for a in appInfos]}, safe=False)
 		response['Cache-Control'] = "public, max-age=3600"
@@ -309,3 +317,23 @@ def recentSearches(request: django.http.HttpRequest):
 	if isSensitive:
 		response['Cache-Control'] = "no-store"
 	return response
+
+
+def searchTiming(request: django.http.HttpRequest):
+	with connection.cursor() as cursor:
+		try:
+			cursor.execute('select durationInMS from SearchTiming')
+			data = cursor.fetchall()
+			data = [d[0] for d in data]
+			if len(data) > 1:
+				mean = statistics.mean(data)
+				std = statistics.stdev(data)  # stddev requires at least 2 samples.
+			else:
+				mean = 30000
+				std = 0
+		except:
+			cursor.execute(apiHelper.getSqlCreateTableSearchTiming())
+			mean = 30000
+			std = 0
+
+	return JsonResponse({'mean': mean, 'std': std})

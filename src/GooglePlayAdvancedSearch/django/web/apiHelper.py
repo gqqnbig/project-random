@@ -99,3 +99,9 @@ CREATE TABLE Search (
 	ip TEXT NOT NULL,
 	date	TEXT NOT NULL DEFAULT (datetime('now'))
 )'''
+
+def getSqlCreateTableSearchTiming():
+	return '''
+CREATE TABLE SearchTiming (
+	"durationInMS"	INTEGER NOT NULL
+)'''
