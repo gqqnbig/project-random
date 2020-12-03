@@ -63,7 +63,7 @@ def executeAndCreateTable(cursor, fnSqlToCreateTable, *args):
 		cursor.execute(*args)
 		return True
 	except Exception as e:
-		if type(e).__name__ is 'OperationalError' and 'no such table' in str(e):
+		if type(e).__name__ == 'OperationalError' and 'no such table' in str(e):
 			if fnSqlToCreateTable is not None:
 				cursor.execute(fnSqlToCreateTable())
 				cursor.execute(*args)
