@@ -32,7 +32,7 @@ const searchResult = new Vue({
 let searchingTimeoutHandler = null;
 
 const searchTimingPromise = fetch('/Api/SearchTiming').then(r => r.json()).then(data => {
-	console.log('Waiting timeout (ms)' + (data.mean + 3 * data.std));
+	console.log('Waiting timeout (ms): ' + (data.mean + 3 * data.std));
 	searchingTimeoutHandler = setTimeout(() => searchResult.errorMessage = "Taking too long to load result. Something might be wrong.", data.mean + 3 * data.std);
 })
 
