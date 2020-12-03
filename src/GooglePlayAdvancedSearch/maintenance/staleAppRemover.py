@@ -3,6 +3,8 @@ import os
 import sqlite3
 import sys
 
+from GooglePlayAdvancedSearch.DBUtils import executeAndCreateTable
+
 
 # def clearUpBooleanColumns(cursor, columnNames):
 # 	for pid, permission in permissions:
@@ -13,17 +15,13 @@ import sys
 # 			connection.commit()
 
 def cleanSearchTiming(cursor):
-	try:
-		cursor.execute('select count(*) from SearchTiming')
-		rows = cursor.fetchone()[0]
-		if rows > MAX_SEARCH_TIMING:
-			cursor.execute('delete SearchTiming where rowid<:n', {'n': rows - MAX_SEARCH_TIMING})
-			print(f'removed {cursor.rowcount} search timing records.')
-	except sqlite3.OperationalError as e:
-		if 'no such table' in str(e):
-			pass
-		else:
-			print(e, file=sys.stderr)
+	if executeAndCreateTable(cursor, None, 'select count(*) from SearchTiming') is False:
+		return
+
+	rows = cursor.fetchone()[0]
+	if rows > MAX_SEARCH_TIMING:
+		cursor.execute('delete from SearchTiming where rowid<:n', {'n': rows - MAX_SEARCH_TIMING})
+		print(f'removed {cursor.rowcount} search timing records.')
 
 
 MAX_RECORD_DAYS = 14
@@ -35,23 +33,15 @@ if __name__ == "__main__":
 	cursor = connection.cursor()
 	cleanSearchTiming(cursor)
 
-	try:
-		cursor.execute("delete from app where updateDate<date('now','-" + str(APP_FRESH_DAYS) + " days')")
+	if executeAndCreateTable(cursor, None, "delete from app where updateDate<date('now','-" + str(APP_FRESH_DAYS) + " days')") is False:
+		pass
+	else:
 		print(f'removed {cursor.rowcount} apps cached since {APP_FRESH_DAYS} days ago.')
-	except sqlite3.OperationalError as e:
-		if 'no such table' in str(e):
-			pass
-		else:
-			print(e, file=sys.stderr)
 
-	try:
-		cursor.execute("delete from Search where [date]<date('now','-" + str(MAX_RECORD_DAYS) + " days')")
+	if executeAndCreateTable(cursor, None, "delete from Search where [date]<date('now','-" + str(MAX_RECORD_DAYS) + " days')") is False:
+		pass
+	else:
 		print(f'removed {cursor.rowcount} search records since {MAX_RECORD_DAYS} days ago.')
-	except sqlite3.OperationalError as e:
-		if 'no such table' in str(e):
-			pass
-		else:
-			print(e, file=sys.stderr)
 
 	connection.commit()
 	connection.close()

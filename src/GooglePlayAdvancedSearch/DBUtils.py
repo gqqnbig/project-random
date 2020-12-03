@@ -57,14 +57,17 @@ def executeAndCreateTable(cursor, fnSqlToCreateTable, *args):
 	:param cursor:
 	:param fnSqlToCreateTable:
 	:param args: anything cursor.execute can accept.
-	:return:
+	:return: true if cursor.execute(*args) executes successfully. false if table doesn't exist.
 	"""
 	try:
 		cursor.execute(*args)
+		return True
 	except Exception as e:
 		if type(e).__name__ is 'OperationalError' and 'no such table' in str(e):
-			cursor.execute(fnSqlToCreateTable())
-			cursor.execute(*args)
+			if fnSqlToCreateTable is not None:
+				cursor.execute(fnSqlToCreateTable())
+				cursor.execute(*args)
+			return False
 		else:
 			raise e
 
