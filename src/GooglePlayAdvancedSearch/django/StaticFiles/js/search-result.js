@@ -13,6 +13,7 @@ const searchResult = new Vue({
 		errorMessage: undefined,
 		errorType: '',
 		executionSeconds: undefined,
+		searchingPrompt: undefined,
 	},
 	methods: {
 		getPriceText(installFee, allowInAppPurchase) {
@@ -33,8 +34,10 @@ let searchingTimeoutHandler = null;
 
 const searchTimingPromise = fetch('/Api/SearchTiming').then(r => r.json()).then(data => {
 	console.log('Waiting timeout (ms): ' + (data.mean + 3 * data.std));
+
+	searchResult.searchingPrompt = `Searching... Usually finish in ${(data.mean / 1000).toFixed(1)}±${(data.std / 1000).toFixed(0)}s`;
 	searchingTimeoutHandler = setTimeout(() => searchResult.errorMessage = "Taking too long to load result. Something might be wrong.", data.mean + 3 * data.std);
-})
+});
 
 const startSearchTime = performance.now();
 //When we got permission list and category list, then run the following code.
